@@ -1,0 +1,22 @@
+{
+  "name": "parcel-bundler-mmcs",
+  "version": "1.0.0",
+  "repository": "https://github.com/macizomedia/parcel-bundler-mmcs.git",
+  "author": "Blas <macizomedia@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "eslint": "^8.3.0",
+    "parcel": "^2.0.1"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^8.3.0",
+    "husky": "^7.0.0",
+    "lint-staged": "^12.1.2",
+    "prettier": "2.5.0",
+    "pretty-quick": "^3.1.2"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "dev": "parcel src/index.html"
+  }
+}

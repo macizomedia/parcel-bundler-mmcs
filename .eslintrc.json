@@ -1,0 +1,34 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+
+    "prettier",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "lines-around-comment": [
+      "error",
+      {
+        "beforeBlockComment": true,
+        "afterBlockComment": true,
+        "beforeLineComment": true,
+        "afterLineComment": true,
+        "allowBlockStart": true,
+        "allowBlockEnd": true,
+        "allowObjectStart": true,
+        "allowObjectEnd": true,
+        "allowArrayStart": true,
+        "allowArrayEnd": true
+      }
+    ]
+  }
+}
