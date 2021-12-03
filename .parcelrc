@@ -1,0 +1,17 @@
+{
+  "extends": "@parcel/config-default",
+  "validators": {
+    "*.{ts,tsx}": [
+      "@parcel/validator-typescript"
+    ]
+  },
+  "resolvers": [
+    "@parcel/resolver-glob",
+    "..."
+  ],
+  "transformers": {
+    "*.pug": [
+      "parcel-transformer-pug-precompile"
+    ]
+  }
+}
