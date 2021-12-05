@@ -1,0 +1,16 @@
+{
+  "name": "Zen Of Coding, a curated collection of useful coding laessons",
+  "short_name": "Zen of Code",
+  "start_url": "./",
+  "theme_color": "#fff",
+  "background_color": "#333",
+  "scope": ".",
+  "display": "standalone",
+  "icon": [
+    {
+      "src": "",
+      "size": "100x100",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,7 +1,11 @@
+import renderHome from "./home.pug";
+import renderAbout from "./about.pug";
+import renderContact from "./contact.pug";
+
 const evSpaRendered = (to: string) =>
   new CustomEvent("spa-rendered", { detail: { to } });
 
-// window.addEventListener('spa-rendered', console.log)
+window.addEventListener("spa-rendered", console.log);
 
 export const ROUTER_MODE = "__routerMode__" as string;
 
@@ -62,4 +66,112 @@ export function parseUrl(mode = ROUTER_MODE) {
   }
 
   return output;
+}
+
+export interface IRoute {
+  path: string | string[];
+  view: string | Promise<string>;
+  layout?: (ctx: { routerView: string }) => string | Promise<string>;
+}
+
+export const layouts = {
+  async default(ctx: { routerView: string }) {
+    return import("./layouts/default.pug").then((r) => r.default(ctx));
+  },
+  async blank(ctx: { routerView: string }) {
+    return import("./layouts/blank.pug").then((r) => r.default(ctx));
+  },
+};
+
+export class AppRouter extends HTMLElement {
+  routes: IRoute[] = [
+    {
+      path: "/login",
+      view: renderContact(),
+    },
+    {
+      path: ["/", ""],
+      view: renderHome(),
+    },
+  ];
+
+  default_: Omit<IRoute, "path"> = {
+    view: renderAbout(),
+    layout: layouts.blank,
+  };
+
+  connectedCallback() {
+    this.attachView();
+
+    if (ROUTER_MODE !== "history") {
+      window.addEventListener("hashchange", this.attachView.bind(this));
+    } else {
+      window.addEventListener("popstate", this.attachView.bind(this));
+    }
+  }
+
+  disconnectedCallback() {
+    if (ROUTER_MODE !== "history") {
+      window.removeEventListener("hashchange", this.attachView.bind(this));
+    } else {
+      window.removeEventListener("popstate", this.attachView.bind(this));
+    }
+  }
+
+  async attachView(evt?: any) {
+    const path = (evt && evt.state ? evt.state.to : "") || parseUrl().path;
+
+    if (path !== document.body.getAttribute("data-spa-rendered")) {
+      await (async () => {
+        for (const r of this.routes) {
+          if (Array.isArray(r.path) ? r.path.includes(path) : path === r.path) {
+            this.innerHTML = r.view as string;
+            return;
+          }
+        }
+
+        const r = this.default_;
+        this.innerHTML = await (r.layout || layouts.default)({
+          routerView: (await r.view) as string,
+        });
+      })().catch((e) => {
+        throw e;
+      });
+
+      window.dispatchEvent(evSpaRendered(path));
+      document.body.setAttribute("data-spa-rendered", path);
+    }
+  }
+}
+
+customElements.define("app-router", AppRouter);
+
+class RouterLink extends HTMLAnchorElement {
+  connectedCallback() {
+    const to = this.getAttribute("to");
+    if (to) {
+      if (ROUTER_MODE === "history") {
+        this.href = to;
+      } else {
+        this.href = `#${to}`;
+      }
+
+      this.addEventListener("click", (evt) => {
+        navigateTo(to);
+        evt.preventDefault();
+      });
+    }
+  }
+}
+
+customElements.define("router-link", RouterLink, { extends: "a" });
+
+export function navigateTo(to: string) {
+  // document.body.removeAttribute('data-spa-rendered')
+  if (ROUTER_MODE === "history") {
+    history.pushState({ to }, "", to);
+    window.dispatchEvent(new PopStateEvent("popstate", { state: { to } }));
+  } else {
+    location.replace(to);
+  }
 }
